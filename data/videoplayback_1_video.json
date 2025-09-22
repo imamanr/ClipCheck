@@ -175,19 +175,19 @@
     },
     {
       "frame_idx": 42,
-      "annotation": "S -1 -1 -1 -1"
+      "annotation": "V 40 296 64 218"
     },
     {
       "frame_idx": 43,
-      "annotation": "S -1 -1 -1 -1"
+      "annotation": "V 44 297 88 223"
     },
     {
       "frame_idx": 44,
-      "annotation": "S -1 -1 -1 -1"
+      "annotation": "V 47 298 92 222"
     },
     {
       "frame_idx": 45,
-      "annotation": "V 45 293 70 209"
+      "annotation": "V 48 298 93 222"
     },
     {
       "frame_idx": 46,
@@ -384,6 +384,170 @@
     {
       "frame_idx": 94,
       "annotation": "V 164 296 121 216"
+    },
+    {
+      "frame_idx": 95,
+      "annotation": "V 168 297 116 221"
+    },
+    {
+      "frame_idx": 96,
+      "annotation": "V 167 298 117 224"
+    },
+    {
+      "frame_idx": 97,
+      "annotation": "V 172 298 123 224"
+    },
+    {
+      "frame_idx": 98,
+      "annotation": "V 173 297 115 224"
+    },
+    {
+      "frame_idx": 99,
+      "annotation": "V 176 295 114 225"
+    },
+    {
+      "frame_idx": 100,
+      "annotation": "V 177 297 116 227"
+    },
+    {
+      "frame_idx": 101,
+      "annotation": "V 177 295 106 225"
+    },
+    {
+      "frame_idx": 102,
+      "annotation": "V 176 294 99 225"
+    },
+    {
+      "frame_idx": 103,
+      "annotation": "V 178 292 84 221"
+    },
+    {
+      "frame_idx": 104,
+      "annotation": "V 182 295 83 224"
+    },
+    {
+      "frame_idx": 105,
+      "annotation": "V 188 293 85 227"
+    },
+    {
+      "frame_idx": 106,
+      "annotation": "V 199 294 76 224"
+    },
+    {
+      "frame_idx": 107,
+      "annotation": "V 201 294 77 228"
+    },
+    {
+      "frame_idx": 108,
+      "annotation": "V 209 294 74 230"
+    },
+    {
+      "frame_idx": 109,
+      "annotation": "V 211 294 77 231"
+    },
+    {
+      "frame_idx": 110,
+      "annotation": "V 217 293 80 231"
+    },
+    {
+      "frame_idx": 111,
+      "annotation": "V 221 294 80 232"
+    },
+    {
+      "frame_idx": 112,
+      "annotation": "V 224 296 83 234"
+    },
+    {
+      "frame_idx": 113,
+      "annotation": "V 229 294 84 233"
+    },
+    {
+      "frame_idx": 114,
+      "annotation": "V 232 293 86 231"
+    },
+    {
+      "frame_idx": 115,
+      "annotation": "V 234 294 91 228"
+    },
+    {
+      "frame_idx": 116,
+      "annotation": "V 238 295 94 230"
+    },
+    {
+      "frame_idx": 117,
+      "annotation": "V 239 293 95 229"
+    },
+    {
+      "frame_idx": 118,
+      "annotation": "V 243 293 96 229"
+    },
+    {
+      "frame_idx": 119,
+      "annotation": "V 245 293 100 227"
+    },
+    {
+      "frame_idx": 120,
+      "annotation": "V 247 295 103 226"
+    },
+    {
+      "frame_idx": 121,
+      "annotation": "V 250 294 106 225"
+    },
+    {
+      "frame_idx": 122,
+      "annotation": "V 252 296 109 226"
+    },
+    {
+      "frame_idx": 123,
+      "annotation": "V 254 295 110 225"
+    },
+    {
+      "frame_idx": 124,
+      "annotation": "V 255 297 114 224"
+    },
+    {
+      "frame_idx": 125,
+      "annotation": "V 258 296 118 227"
+    },
+    {
+      "frame_idx": 126,
+      "annotation": "V 260 296 118 227"
+    },
+    {
+      "frame_idx": 127,
+      "annotation": "V 261 297 118 226"
+    },
+    {
+      "frame_idx": 128,
+      "annotation": "V 261 297 122 226"
+    },
+    {
+      "frame_idx": 129,
+      "annotation": "V 261 297 123 227"
+    },
+    {
+      "frame_idx": 130,
+      "annotation": "V 265 297 120 227"
+    },
+    {
+      "frame_idx": 131,
+      "annotation": "V 265 298 119 228"
+    },
+    {
+      "frame_idx": 132,
+      "annotation": "V 268 298 116 228"
+    },
+    {
+      "frame_idx": 133,
+      "annotation": "V 269 296 115 229"
+    },
+    {
+      "frame_idx": 134,
+      "annotation": "V 276 296 95 230"
+    },
+    {
+      "frame_idx": 135,
+      "annotation": "V 281 295 85 228"
     }
   ]
 }
