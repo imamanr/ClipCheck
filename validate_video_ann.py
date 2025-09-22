@@ -102,11 +102,11 @@ class LabelValidator:
                 break
             elif key == ord("n"):
                 self.idx += 1
-            elif key == ord("N"):
+            elif key == ord("s"):
                 self.idx += 10
             elif key == ord("p"):
                 self.idx -= 1
-            elif key == ord("P"):
+            elif key == ord("b"):
                 self.idx -= 10
 
         cv2.destroyAllWindows()

@@ -19,6 +19,8 @@ CVLabelTool is an interactive video annotation tool for object detection. It sup
 Install dependencies:
 
 ```bash
+Python >= 3.10
+sudo apt install python3.10 python3.10-venv python3.10-dev python3.10-distutils curl -y
 python3 -m venv label
 source label/bin/activate
 pip install -r requirements.txt
@@ -33,14 +35,6 @@ Or manually from [Ultralytics YOLOv8 releases](https://github.com/ultralytics/ul
 
 2. Ensure your video files are accessible.
 
-3. Optional: set up a prompt-based detection model (Grounding DINO):
-
-```bash
-# Installed via pip
-pip install transformers
-```
-
----
 
 ## Usage
 
@@ -55,16 +49,15 @@ python label_video.py --video data/videoplayback_1.mp4 --out path/to/output/fold
 
 - **`A`**: Accept current prediction  
 - **`F`**: Fallback to manual labeling (force mouse redraw)  
-- **`L`**: Redraw or rerun prompt-based detection  
+- **`L`**: Trigger prompt-based detection or redraw predictions for the current frame  
 - **`S`**: Skip frame  
 - **`Q`**: Quit  
 
 ### Notes
 
 - If the prompt-based detection fails or the tracker is inaccurate, press **`F`** to manually label the frame.  
+- Press **`L`** to rerun prompt-based detection at any time during labeling.  
 - Bounding boxes will be saved in LabelMe-like JSON format under the output folder.
-
----
 
 ---
 
@@ -84,15 +77,14 @@ The Validation Tool is a simpler CLI utility to visualize labeled bounding boxes
 
 ### Navigation
 - **`n`** → Next frame  
-- **`N`** → Skip 10 frames forward  
+- **`s`** → Skip 10 frames forward  
 - **`p`** → Previous frame  
-- **`P`** → Skip 10 frames back  
+- **`b`** → Skip 10 frames back  
 - **`q`** → Quit  
 
 ### Usage
 ```bash
 python validate_video_ann.py --video path/to/video.mp4 --annotations path/to/video.json
-
 ```
 ![cvValidateTool Example](data/validate.png)
 
