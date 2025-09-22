@@ -93,5 +93,6 @@ The Validation Tool is a simpler CLI utility to visualize labeled bounding boxes
 ```bash
 python validate_video_ann.py --video path/to/video.mp4 --annotations path/to/video.json
 
+```
 ![cvValidateTool Example](data/validate.png)
 
