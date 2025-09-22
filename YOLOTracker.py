@@ -2,7 +2,31 @@ import argparse, os, sys, json
 import cv2
 import numpy as np
 from pathlib import Path
-from ultralytics import YOLO  # pip install ultralytics
+from ultralytics import YOLO  
+import torch
+import torch.nn.modules.container as container
+import ultralytics.nn.tasks as tasks
+import ultralytics.nn.modules as modules
+import torch.nn.modules.conv as conv
+from torch.serialization import add_safe_globals
+from torch.nn import SiLU
+
+# allowlist SiLU
+import ultralytics.nn.tasks as tasks
+import ultralytics.nn.modules as modules
+
+torch.serialization.add_safe_globals([
+    # PyTorch layers
+    container.Sequential,
+
+    # Ultralytics YOLO layers
+    tasks.DetectionModel,
+    modules.Conv,
+    modules.C2f,
+    modules.Bottleneck,
+    modules.SPPF,
+])
+# now load
 
 def iou(boxA, boxB):
     # box format: x, y, w, h

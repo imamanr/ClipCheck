@@ -55,7 +55,7 @@ class PromptBasedAnnotator:
         if best_score < self.conf_thresh:
             # No confident detection
             if output_format == "txt":
-                return "S -1 -1 -1 -1"
+                return -1, -1, -1, -1,
             else:
                 return {"state": "S", "bbox": None, "score": best_score}
 
@@ -72,55 +72,70 @@ class PromptBasedAnnotator:
                 "bbox": [int(cx), int(cy), int(bw), int(bh)],
             }
 
-# from autodistill.detection import CaptionOntology
-# from autodistill_grounded_sam import GroundedSAM
-# import supervision as sv
-# from autodistill_clip import CLIP
+from autodistill.detection import CaptionOntology
+from autodistill_grounded_sam import GroundedSAM
+import supervision as sv
+from autodistill_clip import CLIP
 
-# import os
-# from pathlib import Path
-# import json
-# import numpy as np
-# os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+import os
+from pathlib import Path
+import json
+import numpy as np
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
-# from autodistill.core.composed_detection_model import ComposedDetectionModel
-# import cv2
+from autodistill.core.composed_detection_model import ComposedDetectionModel
+import cv2
+from PIL import Image
+import tempfile
 
-# classes = ["person"]
+class PromptOntology:
+    def __init__(self):
+        self.base_classes = ["person"]
+    def annotate_frame(self, frame, prompt, output_format="txt"):
+        """
+        Annotate a frame given a natural language prompt.
+        Returns bounding box in format: V x_center y_center width height
+        """
+        
+        if isinstance(frame, np.ndarray):
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            pil_img = Image.fromarray(frame)
 
-# class promptOntology:
-#     def __init__(self, classes):
-#         self.classes = classes
-#     def annotate_frame(self, frame, prompt, output_format="txt"):
-#         SAMCLIP = ComposedDetectionModel(
-#             detection_model=GroundedSAM(
-#                 CaptionOntology({
-#                     "person": [
-#                 prompt
-#             ],
-#             })),
-#             classification_model=CLIP(
-#                 CaptionOntology({k: k for k in classes})
-#             )
-#         )
 
-#         results = SAMCLIP.predict(frame)
-#         bbox= [-1, -1, -1, -1]
-#         if results.confidence.any():
-#             best_idx = results.confidence.argmax()
 
-#             # Get best confidence score
-#             best_conf = results.confidence[best_idx]
+        # Build detection ontology based on prompt
+        detection_ontology = CaptionOntology({
+            cls: [prompt] for cls in self.base_classes
+        })
 
-#             # Extract best bbox
-#             bbox = [
-#                 int(results.xyxy[best_idx][0]),
-#                 int(results.xyxy[best_idx][1]),
-#                 int(results.xyxy[best_idx][2]),
-#                 int(results.xyxy[best_idx][3])
-#             ]
-#         return f'V {int((bbox[0]+bbox[2])/2)} {int((bbox[1]+bbox[3])/2)} {int(bbox[2]-bbox[0])} {int(bbox[3]-bbox[1])}'
+        classification_ontology = CaptionOntology({
+            cls: cls for cls in self.base_classes
+        })
 
+        # Compose model dynamically (prompt included here)
+        model = ComposedDetectionModel(
+            detection_model=GroundedSAM(detection_ontology),
+            classification_model=CLIP(classification_ontology)
+        )
+
+        with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
+            pil_img.save(tmp.name)
+            results = model.predict(tmp.name) 
+        
+
+        if results.confidence is None or not results.confidence.any():
+            return [-1, -1, -1, -1] # no detection
+
+        # Pick best detection
+        best_idx = results.confidence.argmax()
+        x1, y1, x2, y2 = map(int, results.xyxy[best_idx])
+
+        x_center = (x1 + x2) // 2
+        y_center = (y1 + y2) // 2
+        width = x2 - x1
+        height = y2 - y1
+
+        return [x_center, y_center, width, height]
 
 if __name__ == "__main__":
 

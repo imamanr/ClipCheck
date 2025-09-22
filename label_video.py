@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 from YOLOTracker import YOLOTracker
 from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
-from PromptBasedAnnotator import PromptBasedAnnotator
+from PromptBasedAnnotator import PromptBasedAnnotator, PromptOntology
 
 class LabelData:
     def __init__(self):
@@ -64,12 +64,15 @@ class CVLabelTool:
         self.drag_start = None
         self.drag_end = None
         self.prompt = prompt
+        self.prompt_run_done = False 
         if prompt:
             processor = AutoProcessor.from_pretrained("IDEA-Research/grounding-dino-base")
             model = AutoModelForZeroShotObjectDetection.from_pretrained("IDEA-Research/grounding-dino-base")
-            self.annotator = PromptBasedAnnotator(processor, model, conf_thresh=0.15)
+            # self.annotator = PromptBasedAnnotator(processor, model, conf_thresh=0.15)
+            self.annotator = PromptOntology()
 
         self._load_frame()
+        self.video_annotations = []
         cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
         cv2.setMouseCallback(self.window_name, self._mouse_cb)
 
@@ -152,7 +155,8 @@ class CVLabelTool:
 
     def detect_with_prompt(self, frame, prompt):
         boxes = self.annotator.annotate_frame(prompt=[prompt], frame=frame)
-        if boxes and len(boxes) > 0:
+        if boxes:
+            print(boxes)
             x, y, bw, bh = boxes
             return int(x), int(y), int(bw), int(bh)
         return None
@@ -182,19 +186,38 @@ class CVLabelTool:
             "annotation": ann
         })
 
+    def _save_annotations(self):
+        video_data = {
+            "video_path": self.video_path,
+            "num_frames": self.num_frames,
+            "frame_rate": self.frame_rate,
+            "width": self.width,
+            "height": self.height,
+            "annotations": self.video_annotations
+        }
+        with open(self.annotation_path, "w") as f:
+            json.dump(video_data, f, indent=2)
+        print(f"Saved full video annotations to {self.annotation_path}")
+
+
     def run(self):
         self.manual_override = False
+        self.tracker_initialized = False  # has prompt-based detection been run & tracker initialized
 
         while True:
-            if self.prompt and not self.bbox and not self.manual_override:
+            # Run prompt-based detection only if tracker is not initialized and no manual override
+            if self.prompt and not self.tracker_initialized and not self.manual_override:
                 print(f"Running prompt-based detection with prompt: {self.prompt}")
                 norm_bbox = self.detect_with_prompt(frame=self.base_img, prompt=self.prompt)
                 if norm_bbox is not None:
                     self._init_tracker_with_bbox(norm_bbox, label="prompt_obj")
+                    self.tracker_initialized = True  # mark tracker as initialized
+                    self.manual_override = True
                 else:
                     print("Prompt-based detector found nothing.")
 
-            if self.tracking and not self.await_fix:
+            # Tracker updates if initialized
+            if self.tracking and self.tracker_initialized and not self.await_fix:
                 ok, newbox = self.tracker.update(self.base_img)
                 if ok:
                     x, y, w, h = map(int, newbox)
@@ -211,6 +234,7 @@ class CVLabelTool:
                     self.tracking = False
                     self.bbox = None
                     self.data.state = "I"
+                    self.tracker_initialized = False  # allow prompt detection again
 
             self._refresh_display()
             cv2.imshow(self.window_name, self.display)
@@ -226,7 +250,7 @@ class CVLabelTool:
                 if self.idx < self.num_frames:
                     self._load_frame()
                 self.await_fix = False
-                
+
             elif key == ord("s"):
                 print("Skipped frame")
                 self.data.state = "S"
@@ -235,39 +259,29 @@ class CVLabelTool:
                 if self.idx < self.num_frames:
                     self._load_frame()
                 self.await_fix = False
-                
+                #self.tracker_initialized = True  # skip prompt-based detection
+
             elif key == ord("l"):
-                if self.prompt:
-                    print("Re-running prompt-based detector...")
-                    self.bbox = None
-                    self.tracking = False
-                else:
-                    print("Draw bbox with mouse")
-                    self.manual_override = True
+                print("Manual override: draw bbox with mouse")
+                self.bbox = None
+                self.tracking = False
+                self.manual_override = False
+                self.tracker_initialized = False  # allow prompt detection again
+
             elif key == ord("f"):
                 print("Fallback to manual labeling → draw with mouse")
                 self.manual_override = True
                 self.await_fix = True
                 self.bbox = None
                 self.tracking = False
+                self.tracker_initialized = False  # allow prompt detection again
 
-            if self.idx > self.num_frames:
+            if self.idx >= self.num_frames:
                 print("Reached end of video frames.")
                 break
-        cv2.destroyAllWindows()
 
-        # Save video-level JSON
-        video_data = {
-            "video_path": self.video_path,
-            "num_frames": self.num_frames,
-            "frame_rate": self.frame_rate,
-            "width": self.width,
-            "height": self.height,
-            "annotations": self.video_annotations
-        }
-        with open(self.annotation_path, "w") as f:
-            json.dump(video_data, f, indent=2)
-        print(f"Saved full video annotations to {self.annotation_path}")
+        cv2.destroyAllWindows()
+        self._save_annotations()
 
 
 def parse_args():

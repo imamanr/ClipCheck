@@ -4,3 +4,10 @@ argparse
 ultralytics
 transformers
 Pillow
+autodistill
+scikit-learn
+roboflow
+autodistill-grounded-sam
+autodistill_clip
+torch==2.5.1+cu124
+torchvision==0.20.1
