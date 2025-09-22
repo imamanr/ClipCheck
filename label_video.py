@@ -265,7 +265,7 @@ class CVLabelTool:
                 print("Manual override: draw bbox with mouse")
                 self.bbox = None
                 self.tracking = False
-                self.manual_override = False
+                self.manual_override = True
                 self.tracker_initialized = False  # allow prompt detection again
 
             elif key == ord("f"):
