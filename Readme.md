@@ -63,7 +63,7 @@ pip install transformers
 Run the labeling tool:
 
 ```bash
-python label_tool.py --video path/to/video.mp4 --out path/to/output/folder --prompt "a person wearing red"
+python label_video.py --video path/to/video.mp4 --out path/to/output/folder --prompt "a person wearing red"
 ```
 
 ### Key Bindings
@@ -81,9 +81,29 @@ python label_tool.py --video path/to/video.mp4 --out path/to/output/folder --pro
 
 ---
 
-## Directory Structure
+---
 
-```
-output_folder/
-├── video_name.json
-```
+## Workflow for Validation
+---
+
+## Validation Tool
+
+The Validation Tool is a simpler CLI utility to visualize labeled bounding boxes and perform quality checks on your annotations.
+
+### Features
+- Opens the video alongside its annotation JSON file.  
+- Overlays bounding boxes on frames.  
+- Color coding:
+  - **Green** for visible (`V`) boxes  
+  - Frames marked **Skipped (`S`)** or **Invisible (`I`)** show a text label instead of a box  
+
+### Navigation
+- **`n`** → Next frame  
+- **`N`** → Skip 10 frames forward  
+- **`p`** → Previous frame  
+- **`P`** → Skip 10 frames back  
+- **`q`** → Quit  
+
+### Usage
+```bash
+python validate_video_ann.py --video path/to/video.mp4 --annotations path/to/video.json
