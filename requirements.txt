@@ -1,0 +1,6 @@
+opencv-python
+numpy
+argparse
+ultralytics
+transformers
+Pillow
