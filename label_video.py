@@ -92,20 +92,25 @@ class CVLabelTool:
         if self.await_fix or (not self.tracking and (not self.bbox or getattr(self, 'manual_override', False))):
             if event == cv2.EVENT_LBUTTONDOWN:
                 self.dragging = True
-                self.drag_start = (x, y)
+                # First click is the center of the object
+                self.drag_center = (x, y)
                 self.drag_end = (x, y)
             elif event == cv2.EVENT_MOUSEMOVE and self.dragging:
                 self.drag_end = (x, y)
             elif event == cv2.EVENT_LBUTTONUP and self.dragging:
                 self.dragging = False
                 self.drag_end = (x, y)
-                x0, y0 = self.drag_start
-                x1, y1 = self.drag_end
-                x_min, x_max = sorted([x0, x1])
-                y_min, y_max = sorted([y0, y1])
-                w, h = x_max - x_min, y_max - y_min
-                bbox = (x_min, y_min, w, h)
-                print(f"New bbox drawn: {bbox}")
+
+                cx, cy = self.drag_center
+                ex, ey = self.drag_end
+
+                # Width and height are twice the distance from center to drag point
+                w = abs(ex - cx) * 2
+                h = abs(ey - cy) * 2
+
+                # Store bbox in [center_x, center_y, width, height] format
+                bbox = (cx, cy, w, h)
+                print(f"New bbox drawn (center-based): {bbox}")
                 self._init_tracker_with_bbox(bbox, label=self.curr_label)
                 self.manual_override = False
 
@@ -115,6 +120,7 @@ class CVLabelTool:
         self.display = self.base_img.copy()
         if self.bbox:
             cx, cy, w, h = map(int, self.bbox)
+
             x1, y1 = int(cx - w / 2), int(cy - h / 2)
             x2, y2 = int(cx + w / 2), int(cy + h / 2)
             cv2.rectangle(self.display, (x1, y1), (x2, y2), (0, 255, 0), 2)
@@ -124,6 +130,15 @@ class CVLabelTool:
                 "points": [[float(x1), float(y1)], [float(x2), float(y2)]],  # store corners
                 "shape_type": "bbox"
             }]
+        # Draw dragging box in real-time
+        elif self.dragging and self.drag_center and self.drag_end:
+            cx, cy = self.drag_center
+            ex, ey = self.drag_end
+            w = abs(ex - cx) * 2
+            h = abs(ey - cy) * 2
+            x1, y1 = int(cx - w / 2), int(cy - h / 2)
+            x2, y2 = int(cx + w / 2), int(cy + h / 2)
+            cv2.rectangle(self.display, (x1, y1), (x2, y2), (0, 200, 0), 2)
         txt = f"[{self.idx+1}/{self.num_frames}] "
         if self.manual_override and not self.bbox:
             txt += "Manual labeling -> Draw bbox with mouse"
@@ -144,16 +159,16 @@ class CVLabelTool:
 
     def _init_tracker_with_bbox(self, bbox, label=None):
         self.bbox = bbox
-        x, y, w, h = bbox
-        cx, cy = x + w / 2.0, y + h / 2.0
-        self.bbox = (cx, cy, w, h) 
-        
+        cx, cy, w, h = bbox
+        x1, y1 = int(cx - w / 2), int(cy - h / 2)  # top-left for tracker
+        self.bbox = (cx, cy, w, h)  # internal representation for display
+
         self.tracker = YOLOTracker()
-        self.tracker.init(self.base_img, (x, y, w, h))
+        self.tracker.init(self.base_img, (x1, y1, int(w), int(h)))  # tracker expects top-left
         self.data.state = "V"
         self.data.shapes = [{
             "label": label or self.curr_label,
-            "points": [[float(cx), float(cy)], [float(w), float(h)]],
+            "points": [[float(x1), float(y1)], [float(x1 + w), float(y1 + h)]],
             "shape_type": "bbox"
         }]
         self.tracking = True
